@@ -2,6 +2,9 @@
 # Created by https://www.gitignore.io/api/node,linux,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=node,linux,visualstudiocode
 
+### dist ###
+dist
+
 ### Linux ###
 *~
 
@@ -111,11 +114,7 @@ public/
 .dynamodb/
 
 ### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
