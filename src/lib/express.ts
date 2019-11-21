@@ -39,7 +39,7 @@ export class Express {
         app.use(helmet());
         app.use(compression());
         const mongo = new MongoDB();
-        mongo.connectDB().then(() => {});
+        mongo.connectDB();
         //routes
         app.use(
             new SigninRouter(this.wixAppId, this.wixAppSecret, this.baseUrl).r
