@@ -4,6 +4,9 @@ import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import methodOverride from "method-override";
+import { SigninRouter } from "../app/routers/signinRouter";
+import { NotFoundRouter } from "../app/routers/notFoundRouter";
+import { MongoDB } from "./mongoDB";
 
 /**
  * Express
@@ -11,8 +14,9 @@ import methodOverride from "method-override";
 export class Express {
     port: number;
     app: Object;
-    providerUsername: string;
-    providerPassword: string;
+    wixAppId: string;
+    wixAppSecret: string;
+    baseUrl: string;
 
     /**
      * constructor
@@ -20,8 +24,12 @@ export class Express {
     constructor() {
         const app = express();
         this.port = parseInt(process.env.NODE_PORT) || 7088;
-        this.providerUsername = process.env.NODE_PROVIDER_USERNAME;
-        this.providerPassword = process.env.NODE_PROVIDER_PASSWORD;
+        this.wixAppId = process.env.NODE_WIX_APP_ID || null;
+        this.wixAppSecret = process.env.NODE_WIX_APP_SECRET || null;
+        this.baseUrl =
+            process.env.NODE_BASE_URL || `http://localhost:${this.port}`;
+        app.set("view engine", "pug");
+        app.set("views", "app/views");
         app.set("port", this.port);
         app.use(express.static("./public"));
         app.use(bodyParser.urlencoded({ limit: "1024mb", extended: true }));
@@ -30,11 +38,13 @@ export class Express {
         app.use(cors());
         app.use(helmet());
         app.use(compression());
-        app.use("*", (req, res) => {
-            res.status(200).json({
-                message: "Im hard working now, please not disturb!!!"
-            });
-        });
+        const mongo = new MongoDB();
+        mongo.connectDB().then(() => {});
+        //routes
+        app.use(
+            new SigninRouter(this.wixAppId, this.wixAppSecret, this.baseUrl).r
+        );
+        app.use(new NotFoundRouter().r);
         this.app = app;
     }
 }

@@ -19,12 +19,15 @@ export class API {
      * @returns
      * @memberof API
      */
-    async post(endpoint: string, body: object) {
+    async post(endpoint: string, body: object): Promise<any> {
         return new Promise((resolve, reject) => {
             request.post(
                 `${this.baseUrl}${endpoint}`,
                 {
-                    form: body
+                    form: body,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
                 },
                 (error, response, body) => {
                     if (error) reject(error);
