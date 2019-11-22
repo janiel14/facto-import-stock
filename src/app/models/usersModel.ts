@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
-import { Schema } from "mongoose";
 
-const schema = new Schema({
+export interface IUser extends mongoose.Document {
+    createdAt: Date;
+    updatedAt: Date;
+    instanceId: string;
+    accessToken: string;
+    refreshToken: string;
+}
+
+export const UserSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         required: true,
@@ -28,4 +35,5 @@ const schema = new Schema({
         required: false
     }
 });
-export default mongoose.model("users", schema);
+
+export default mongoose.model<IUser>("users", UserSchema);

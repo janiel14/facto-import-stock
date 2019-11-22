@@ -6,16 +6,117 @@ html(lang='pt-BR')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
         // Bootstrap CSS
         link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T', crossorigin='anonymous')
-        title Hello, world!
+        title Mobile Stock Integração
     body
         .jumbotron.jumbotron-fluid
             .container
-                h1.display-4 Fluid jumbotron
+                h1.display-4 Mobile Stock Integração
                 p.lead
-                    | This is a modified jumbotron that occupies the entire horizontal space of its parent.
+                    | Importar estoque do Mobile Stock.
+                #form
+                    form
+                        .form-group
+                            label(for='username') Usuário
+                            input#username.form-control(type='text', placeholder='usuário')
+                        .form-group
+                            label(for='password') Senha
+                            input#password.form-control(type='password', placeholder='Password')
+                        button.btn.btn-primary(type='button', onclick="requestMobileStock();") Importar
+                #loading.d-none
+                    .d-flex.justify-content-center
+                        button.btn.btn-primary(type='button', disabled='')
+                            span.spinner-border.spinner-border-sm(role='status', aria-hidden='true')
+                            |   Estamos importando seu estoque no momento...
+                #errors.d-none
+                    .alert.alert-danger(role='alert')
+                        #message
+
+                #results.d-none
 
         // Optional JavaScript
         // jQuery first, then Popper.js, then Bootstrap JS
         script(src='https://code.jquery.com/jquery-3.3.1.slim.min.js', integrity='sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo', crossorigin='anonymous')
         script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js', integrity='sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1', crossorigin='anonymous')
         script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js', integrity='sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM', crossorigin='anonymous')
+        script.
+            const hide = (div) => {
+                document.getElementById(div).classList.add("d-none");
+            }
+            const show = (div) => {
+                document.getElementById(div).classList.remove("d-none");
+            }
+            const field = (div) => {
+                return document.getElementById(div).value;
+            }
+            const showError = (message) => {
+                show("errors");
+                document.getElementById("message").innerHTML = message;
+            }
+            const generateTable = (data) => {
+                const table = document.createElement("table");
+                const thead = document.createElement("thead");
+                const tbody = document.createElement("tbody");
+                const tr = document.createElement("tr");
+                table.classList.add("table");
+                thead.classList.add("thead-dark");
+                ["Código", "Produto"].forEach(item => {
+                    let th = document.createElement("th");
+                    th.scope = "col";
+                    th.innerText = item;
+                    tr.append(th);
+                });
+                thead.appendChild(tr);
+                data.forEach(item => {
+                    let tr = document.createElement("tr");
+                    let td1 = document.createElement("td");
+                    let td2 = document.createElement("td");
+                    td1.classList.add("center");
+                    td1.innerText = item.codigo;
+                    td2.innerText = item.referencia;
+                    tr.append(td1);
+                    tr.append(td2);
+                    tbody.appendChild(tr);
+                });
+                table.append(thead);
+                table.append(tbody);
+                document.getElementById("results").appendChild(table);
+                show("results");
+            }
+
+            const resquestApi = (username, password) => {
+                try {
+                    const data = `username=${username}&password=${password}`;
+                    const xhr = new XMLHttpRequest();
+                    xhr.withCredentials = true;
+                    xhr.addEventListener("readystatechange", function () {
+                    if (this.readyState === 4) {
+                        hide("loading");
+                        const response = JSON.parse(this.responseText);
+                        if (this.status == 200) {
+                            generateTable(response.data);
+                        } else {
+                            showError("Não foi possível importar estoque: " + response.message);
+                        }
+                    }
+                    });
+                    xhr.open("POST", "/api/import/#{instanceId}");
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.setRequestHeader("Accept", "*/*");
+                    xhr.setRequestHeader("Cache-Control", "no-cache");
+                    xhr.send(data);
+                } catch(error) {
+                    console.error("requestApi: ", error);
+                    throw error;
+                }
+            }
+            const requestMobileStock = () => {
+                try {
+                    hide("form");
+                    hide("results");
+                    hide("errors");
+                    show("loading");
+                    resquestApi(field("username"), field("password"));
+                } catch(error) {
+                    console.error("import: ", error);
+                }
+            }

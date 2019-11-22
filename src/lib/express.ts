@@ -4,8 +4,10 @@ import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import methodOverride from "method-override";
+import { IndexRouter } from "../app/routers/indexRouter";
 import { SigninRouter } from "../app/routers/signinRouter";
 import { NotFoundRouter } from "../app/routers/notFoundRouter";
+import { MobileStockRouter } from "../app/routers/mobileStockRouter";
 import { MongoDB } from "./mongoDB";
 
 /**
@@ -41,6 +43,8 @@ export class Express {
         const mongo = new MongoDB();
         mongo.connectDB();
         //routes
+        app.use(new IndexRouter().r);
+        app.use(new MobileStockRouter().r);
         app.use(
             new SigninRouter(this.wixAppId, this.wixAppSecret, this.baseUrl).r
         );

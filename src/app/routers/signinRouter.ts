@@ -27,7 +27,7 @@ export class SigninRouter {
                 });
             }
         });
-        this.r.get(`/callback`, async (req, res) => {
+        this.r.get(`/authorize`, async (req, res) => {
             try {
                 const url = await this.c.requestFinalToken(
                     req.query.code,

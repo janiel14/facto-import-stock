@@ -26,7 +26,8 @@ export class API {
                 {
                     form: body,
                     headers: {
-                        "Content-Type": "application/json"
+                        Accept: "application/json",
+                        "Content-Type": "multipart/form-data;"
                     }
                 },
                 (error, response, body) => {
