@@ -13,28 +13,92 @@ export class API {
     }
 
     /**
+     * callback
+     * @param error
+     * @param response
+     * @param body
+     * @param resolve
+     * @param reject
+     */
+    _callback(error: any, response: any, body: any, resolve: any, reject: any) {
+        if (error) reject(error);
+
+        if (response.statusCode == 200) resolve(JSON.parse(body));
+        else reject(body);
+    }
+
+    /**
      * post
      * @param {string} endpoint
      * @param {object} body
      * @returns
      * @memberof API
      */
-    async post(endpoint: string, body: object): Promise<any> {
+    async post(endpoint: string, body: object, headers: object): Promise<any> {
+        const options = {
+            headers: null,
+            form: null,
+            body: null
+        };
+        options.headers = headers;
+        if (headers["Content-Type"] === "application/json")
+            options.body = JSON.stringify(body);
+        else options.form = body;
         return new Promise((resolve, reject) => {
             request.post(
                 `${this.baseUrl}${endpoint}`,
+                options,
+                (error, response, body) => {
+                    this._callback(error, response, body, resolve, reject);
+                }
+            );
+        });
+    }
+
+    /**
+     * get
+     * @param {string} endpoint
+     * @param {object} body
+     * @returns
+     * @memberof API
+     */
+    async get(endpoint: string, headers: object): Promise<any> {
+        return new Promise((resolve, reject) => {
+            request.get(
+                `${this.baseUrl}${endpoint}`,
                 {
-                    form: body,
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "multipart/form-data;"
-                    }
+                    headers: headers
                 },
                 (error, response, body) => {
-                    if (error) reject(error);
+                    this._callback(error, response, body, resolve, reject);
+                }
+            );
+        });
+    }
 
-                    if (response.statusCode == 200) resolve(JSON.parse(body));
-                    else reject(body);
+    /**
+     * patch
+     * @param {string} endpoint
+     * @param {object} body
+     * @returns
+     * @memberof API
+     */
+    async patch(endpoint: string, body: object, headers: object): Promise<any> {
+        const options = {
+            headers: null,
+            form: null,
+            body: null
+        };
+        options.headers = headers;
+        if (headers["Content-Type"] === "application/json")
+            options.body = JSON.stringify(body);
+        else options.form = body;
+        return new Promise((resolve, reject) => {
+            request.patch(
+                `${this.baseUrl}${endpoint}`,
+                options,
+                (error, response, body) => {
+                    this._callback(error, response, body, resolve, reject);
                 }
             );
         });

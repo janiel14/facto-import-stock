@@ -16,10 +16,17 @@ export class MobileStock {
     async stockGet(username: string, password: string) {
         try {
             const api = new API(MobileStock.baseurl);
-            return await api.post("/servicos/estoque-json", {
-                nome: username,
-                senha: password
-            });
+            return await api.post(
+                "/servicos/estoque-json",
+                {
+                    nome: username,
+                    senha: password
+                },
+                {
+                    Accept: "application/json",
+                    "Content-Type": "multipart/form-data;"
+                }
+            );
         } catch (error) {
             console.error("MobileStock.stockGet: ", error);
             throw Error("Failed on get stock!!!");

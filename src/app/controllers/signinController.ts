@@ -43,12 +43,16 @@ export class SigninController {
     ): Promise<string> {
         try {
             const api = new API(`https://www.wix.com`);
-            const response = await api.post("/oauth/access", {
-                grant_type: "authorization_code",
-                client_id: this.wixAppId,
-                client_secret: this.wixAppSecret,
-                code: code
-            });
+            const response = await api.post(
+                "/oauth/access",
+                {
+                    grant_type: "authorization_code",
+                    client_id: this.wixAppId,
+                    client_secret: this.wixAppSecret,
+                    code: code
+                },
+                {}
+            );
             await this.Users.createUser(
                 instanceId,
                 response.access_token,
@@ -69,12 +73,16 @@ export class SigninController {
         try {
             const user = await this.Users.getUser(instanceId);
             const api = new API(`https://www.wix.com`);
-            const response = await api.post("/oauth/access", {
-                grant_type: "refresh_token",
-                client_id: this.wixAppId,
-                client_secret: this.wixAppSecret,
-                refresh_token: user.refreshToken
-            });
+            const response = await api.post(
+                "/oauth/access",
+                {
+                    grant_type: "refresh_token",
+                    client_id: this.wixAppId,
+                    client_secret: this.wixAppSecret,
+                    refresh_token: user.refreshToken
+                },
+                {}
+            );
             user.updatedAt = new Date();
             user.accessToken = response.access_token;
             user.refreshToken = response.refresh_token;
